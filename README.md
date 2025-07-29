@@ -7,7 +7,26 @@ ShopEase is a full-stack e-commerce solution built with a Blazor WebAssembly fro
 Key backend technologies include Entity Framework with SQLite for data persistence and ASP.NET Identity with JWT token-based authentication for secure access control. The Web API will expose endpoints documented through OpenAPI (Swagger) for ease of integration and testing.
 
 ---
+# 📁 Folder Structure
 
+The project is organized for clarity, modularity, and scalability:
+
+```
+ShopEase/
+├── src/
+│   ├── ShopEase.Api/           # ASP.NET Core Web API (backend)
+│   ├── ShopEase.Blazor/        # Blazor WebAssembly frontend
+│   ├── ShopEase.Domain/        # Domain models and interfaces
+│   ├── ShopEase.Application/   # Application logic, DTOs, services, validators
+│   └── ShopEase.Infrastructure/# Data access, EF Core, repositories
+├── tests/
+│   └── ShopEase.Tests/         # xUnit test project
+├── ShopEase.sln                # Solution file
+└── README.md                   # Project documentation
+```
+
+Each layer is separated for maintainability and testability. See the step-by-step guide below for details on each folder's purpose.
+---
 ## 🔧 Architecture & Design Patterns
 
 - **CQRS Pattern via MediatR** to separate command and query responsibilities
