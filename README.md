@@ -1,3 +1,30 @@
+---
+
+# 📦 Project Reflection & Q&A
+
+## Project Title
+
+**ShopEase E-Commerce Web Application**
+
+## Describe your e-commerce app and its functionalities
+
+ShopEase is a modern, full-stack e-commerce web application that allows users to browse products, add them to a shopping cart, and securely complete transactions. The app features a Blazor WebAssembly frontend for a responsive, interactive user experience and a .NET 8 Web API backend for robust business logic and data management. Key functionalities include product listing, cart management, user authentication with JWT, and persistent state across sessions. The solution is designed with Clean Architecture, ensuring modularity, testability, and scalability.
+
+## What were the major challenges you faced, and how did you overcome them?
+
+One major challenge was designing a clean, maintainable architecture that separates concerns across domain, application, infrastructure, and presentation layers. Integrating authentication and secure state management in a Blazor WebAssembly environment also required careful handling of JWT tokens and localStorage. Mapping between domain models and DTOs, and ensuring seamless communication between frontend and backend, was addressed using AutoMapper and MediatR. Database schema changes and migrations were managed with EF Core, and issues were resolved by adding design-time factories and updating migration strategies. Thorough unit testing and iterative debugging helped ensure reliability.
+
+## How did you implement key components like business logic, UI/UX, and security?
+
+Business logic was implemented in the Application layer using services, repositories, and CQRS handlers, with validation via FluentValidation. The UI/UX was built with Blazor components, styled for responsiveness and accessibility, and enhanced with ARIA attributes and semantic HTML. Security was enforced through ASP.NET Identity, JWT authentication, and [Authorize] attributes on protected API endpoints. Input validation and sanitization were applied throughout to prevent common vulnerabilities.
+
+## What security measures did you implement?
+
+Security measures include JWT-based authentication, role-based authorization, and secure password storage via ASP.NET Identity. All API endpoints that modify user or cart data are protected with [Authorize]. Input validation is enforced with FluentValidation, and sensitive data is never exposed to the client. The frontend stores tokens securely in localStorage and transmits them only over HTTPS. The app also uses parameterized queries and ORM best practices to prevent SQL injection.
+
+## How did you manage state and optimize performance?
+
+State management is handled using localStorage in the Blazor frontend to persist cart data and authentication tokens across sessions. The application uses efficient data binding and event callbacks for real-time UI updates. Backend performance is optimized by leveraging EF Core for data access, using asynchronous programming throughout, and minimizing API payloads with DTOs. The UI is responsive and lightweight, with CSS media queries and minimal JavaScript for fast load times. End-to-end testing and profiling were used to identify and resolve bottlenecks.
 # ShopEase E-Commerce Web Application
 
 ## Project Overview
