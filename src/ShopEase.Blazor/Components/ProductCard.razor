@@ -1,0 +1,24 @@
+@using ShopEase.Blazor.Models
+@inject NavigationManager Navigation
+
+<article class="product-card" tabindex="0" aria-label="Product: @Product.Name">
+    <h3>@Product.Name</h3>
+    <p><span class="visually-hidden">Category:</span> @Product.Category</p>
+    <p><span class="visually-hidden">Price:</span> @Product.Price.ToString("C")</p>
+    <button @onclick="AddToCart" aria-label="Add @Product.Name to cart">Add to Cart</button>
+</article>
+<style>
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+</style>
+
+@code {
+    [Parameter]
+    public ProductDto Product { get; set; } = default!;
+    [Parameter]
+    public EventCallback<ProductDto> OnAddToCart { get; set; }
+
+    private async Task AddToCart()
+    {
+        await OnAddToCart.InvokeAsync(Product);
+    }
+}

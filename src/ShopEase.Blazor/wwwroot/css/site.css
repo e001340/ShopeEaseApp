@@ -1,0 +1,95 @@
+/* ShopEase Blazor - Responsive & Accessible Styles */
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background: #f8f9fa;
+    color: #222;
+}
+
+h2, h3 {
+    color: #2c3e50;
+}
+
+.products-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 1rem;
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.product-card h3 {
+    font-size: 1.2rem;
+    margin: 0 0 0.5rem 0;
+}
+.product-card button {
+    margin-top: 1rem;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.product-card button:focus {
+    outline: 2px solid #0056b3;
+}
+
+.cart {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 1rem;
+    margin: 2rem auto;
+    max-width: 400px;
+}
+.cart ul {
+    list-style: none;
+    padding: 0;
+}
+.cart li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.cart button {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+}
+.cart button:focus {
+    outline: 2px solid #a71d2a;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .products-list {
+        flex-direction: column;
+        align-items: center;
+    }
+    .product-card, .cart {
+        width: 95vw;
+        max-width: 100%;
+    }
+}
+
+/* Accessibility: high contrast for focus */
+:focus {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+}

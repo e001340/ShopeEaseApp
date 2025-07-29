@@ -1,0 +1,87 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @if (isLoggedIn)
+            {
+                <span class="user-info">Hello, @userName!</span>
+                <a href="#" @onclick="Logout">Logout</a>
+            }
+            else
+            {
+                <a href="/login">Login</a>
+            }
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private bool isLoggedIn;
+    private string? userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        await UpdateLoginState();
+    }
+
+    private async void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        await UpdateLoginState();
+        StateHasChanged();
+    }
+
+    private async Task UpdateLoginState()
+    {
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "accessToken");
+        isLoggedIn = !string.IsNullOrEmpty(token);
+        userName = null;
+        if (isLoggedIn && token is not null)
+        {
+            // Parse JWT for username (assumes JWT is in format header.payload.signature)
+            var parts = token.Split('.');
+            if (parts.Length == 3)
+            {
+                var payload = parts[1];
+                var json = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(System.Text.Encoding.UTF8.GetString(PadBase64(payload)));
+                if (json.TryGetProperty("sub", out var sub))
+                {
+                    userName = sub.GetString();
+                }
+            }
+        }
+    }
+
+    private static byte[] PadBase64(string base64)
+    {
+        int pad = 4 - (base64.Length % 4);
+        if (pad < 4) base64 += new string('=', pad);
+        return System.Convert.FromBase64String(base64);
+    }
+
+    private async Task Logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "accessToken");
+        isLoggedIn = false;
+        userName = null;
+        Navigation.NavigateTo("/login", true);
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

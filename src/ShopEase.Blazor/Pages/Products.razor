@@ -1,0 +1,60 @@
+@page "/products"
+@using ShopEase.Blazor.Models
+@using ShopEase.Blazor.Components
+@inject ShopEase.Blazor.Services.ApiService ApiService
+@inject IJSRuntime JS
+
+<h2>Products</h2>
+@if (products is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="products-list">
+        @foreach (var product in products)
+        {
+            <ProductCard Product="product" OnAddToCart="AddToCart" />
+        }
+    </div>
+}
+<Cart Items="cartItems" OnRemoveFromCart="RemoveFromCart" />
+
+@code {
+    private List<ProductDto>? products;
+    private List<ProductDto> cartItems = new();
+    private string? token;
+
+    protected override async Task OnInitializedAsync()
+    {
+        token = await JS.InvokeAsync<string>("localStorage.getItem", "accessToken");
+        products = await ApiService.GetProductsAsync();
+    }
+
+    private async Task AddToCart(ProductDto product)
+    {
+        if (token is null) return;
+        cartItems.Add(product);
+        await JS.InvokeVoidAsync("localStorage.setItem", "cart", System.Text.Json.JsonSerializer.Serialize(cartItems));
+        await ApiService.AddToCartAsync(product, token);
+    }
+
+    private async Task RemoveFromCart(ProductDto product)
+    {
+        cartItems.Remove(product);
+        await JS.InvokeVoidAsync("localStorage.setItem", "cart", System.Text.Json.JsonSerializer.Serialize(cartItems));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var cartJson = await JS.InvokeAsync<string>("localStorage.getItem", "cart");
+            if (!string.IsNullOrEmpty(cartJson))
+            {
+                cartItems = System.Text.Json.JsonSerializer.Deserialize<List<ProductDto>>(cartJson) ?? new();
+                StateHasChanged();
+            }
+        }
+    }
+}

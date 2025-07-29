@@ -1,0 +1,27 @@
+@using ShopEase.Blazor.Models
+
+<section class="cart" aria-label="Shopping Cart">
+    <h2>Shopping Cart</h2>
+    <ul>
+        @foreach (var item in Items)
+        {
+            <li>
+                <span>@item.Name</span> - <span>@item.Price.ToString("C")</span>
+                <button @onclick="() => RemoveFromCart(item)" aria-label="Remove @item.Name from cart">Remove</button>
+            </li>
+        }
+    </ul>
+    <p>Total: @Items.Sum(i => i.Price).ToString("C")</p>
+</section>
+
+@code {
+    [Parameter]
+    public List<ProductDto> Items { get; set; } = new();
+    [Parameter]
+    public EventCallback<ProductDto> OnRemoveFromCart { get; set; }
+
+    private async Task RemoveFromCart(ProductDto product)
+    {
+        await OnRemoveFromCart.InvokeAsync(product);
+    }
+}
