@@ -34,6 +34,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(ShopEase.Application.Mappings.MappingProfile).Assembly);
 // Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

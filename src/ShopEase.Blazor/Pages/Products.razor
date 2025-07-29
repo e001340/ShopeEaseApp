@@ -15,15 +15,29 @@ else
         @foreach (var product in products)
         {
             <ProductCard Product="product" OnAddToCart="AddToCart" />
+            <button @onclick="() => EditProduct(product)">Edit</button>
+            <button @onclick="() => DeleteProduct(product.ProductId)">Delete</button>
         }
     </div>
 }
+
+<h3>Add / Edit Product</h3>
+<EditForm Model="editProduct" OnValidSubmit="HandleProductSubmit">
+    <InputText @bind-Value="editProduct.Name" placeholder="Name" />
+    <InputText @bind-Value="editProduct.Category" placeholder="Category" />
+    <InputNumber @bind-Value="editProduct.Price" placeholder="Price" />
+    <button type="submit">@(editProduct.ProductId == 0 ? "Add" : "Update")</button>
+    <button type="button" @onclick="ClearEdit">Clear</button>
+</EditForm>
+
 <Cart Items="cartItems" OnRemoveFromCart="RemoveFromCart" />
+<button @onclick="ClearCart">Clear Cart</button>
 
 @code {
     private List<ProductDto>? products;
-    private List<ProductDto> cartItems = new();
+    private List<CartItemDto> cartItems = new();
     private string? token;
+    private ProductDto editProduct = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,15 +48,84 @@ else
     private async Task AddToCart(ProductDto product)
     {
         if (token is null) return;
-        cartItems.Add(product);
+        var existing = cartItems.FirstOrDefault(i => i.ProductId == product.ProductId);
+        if (existing != null)
+        {
+            existing.Quantity++;
+        }
+        else
+        {
+            cartItems.Add(new CartItemDto { ProductId = product.ProductId, Product = product, Quantity = 1 });
+        }
         await JS.InvokeVoidAsync("localStorage.setItem", "cart", System.Text.Json.JsonSerializer.Serialize(cartItems));
-        await ApiService.AddToCartAsync(product, token);
+        await ApiService.AddToCartAsync(product);
     }
 
     private async Task RemoveFromCart(ProductDto product)
     {
-        cartItems.Remove(product);
+        var item = cartItems.FirstOrDefault(i => i.ProductId == product.ProductId);
+        if (item != null)
+        {
+            if (item.Quantity > 1)
+                item.Quantity--;
+            else
+                cartItems.Remove(item);
+        }
         await JS.InvokeVoidAsync("localStorage.setItem", "cart", System.Text.Json.JsonSerializer.Serialize(cartItems));
+        // Optionally, update cart on server as well
+    }
+
+    private async Task HandleProductSubmit()
+    {
+        if (editProduct.ProductId == 0)
+        {
+            var success = await ApiService.CreateProductAsync(editProduct);
+            if (success)
+            {
+                products = await ApiService.GetProductsAsync();
+                editProduct = new();
+            }
+        }
+        else
+        {
+            var success = await ApiService.UpdateProductAsync(editProduct);
+            if (success)
+            {
+                products = await ApiService.GetProductsAsync();
+                editProduct = new();
+            }
+        }
+    }
+
+    private void EditProduct(ProductDto product)
+    {
+        editProduct = new ProductDto
+        {
+            ProductId = product.ProductId,
+            Name = product.Name,
+            Price = product.Price,
+            Category = product.Category
+        };
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        var success = await ApiService.DeleteProductAsync(id);
+        if (success)
+        {
+            products = await ApiService.GetProductsAsync();
+        }
+    }
+
+    private void ClearEdit()
+    {
+        editProduct = new();
+    }
+
+    private async Task ClearCart()
+    {
+        cartItems.Clear();
+        await JS.InvokeVoidAsync("localStorage.removeItem", "cart");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,7 +135,7 @@ else
             var cartJson = await JS.InvokeAsync<string>("localStorage.getItem", "cart");
             if (!string.IsNullOrEmpty(cartJson))
             {
-                cartItems = System.Text.Json.JsonSerializer.Deserialize<List<ProductDto>>(cartJson) ?? new();
+                cartItems = System.Text.Json.JsonSerializer.Deserialize<List<CartItemDto>>(cartJson) ?? new();
                 StateHasChanged();
             }
         }

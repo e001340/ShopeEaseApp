@@ -6,22 +6,23 @@
         @foreach (var item in Items)
         {
             <li>
-                <span>@item.Name</span> - <span>@item.Price.ToString("C")</span>
-                <button @onclick="() => RemoveFromCart(item)" aria-label="Remove @item.Name from cart">Remove</button>
+                <span>@item.Product?.Name</span> - <span>@item.Product?.Price.ToString("C")</span> x <span>@item.Quantity</span>
+                <button @onclick="() => RemoveFromCart(item)" aria-label="Remove @item.Product?.Name from cart">Remove</button>
             </li>
         }
     </ul>
-    <p>Total: @Items.Sum(i => i.Price).ToString("C")</p>
+    <p>Total: @Items.Sum(i => (i.Product?.Price ?? 0) * i.Quantity).ToString("C")</p>
 </section>
 
 @code {
     [Parameter]
-    public List<ProductDto> Items { get; set; } = new();
+    public List<CartItemDto> Items { get; set; } = new();
     [Parameter]
     public EventCallback<ProductDto> OnRemoveFromCart { get; set; }
 
-    private async Task RemoveFromCart(ProductDto product)
+    private async Task RemoveFromCart(CartItemDto item)
     {
-        await OnRemoveFromCart.InvokeAsync(product);
+        if (item.Product != null)
+            await OnRemoveFromCart.InvokeAsync(item.Product);
     }
 }

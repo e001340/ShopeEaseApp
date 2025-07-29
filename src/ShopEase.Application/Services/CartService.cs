@@ -23,7 +23,7 @@ namespace ShopEase.Application.Services
             var cart = await _repository.GetByIdAsync(id);
             if (cart == null) return null;
             var dto = _mapper.Map<CartDto>(cart);
-            dto.Total = cart.CalculateTotal();
+            dto.Total = cart.Items.Sum(i => (i.Product?.Price ?? 0) * i.Quantity);
             return dto;
         }
 
@@ -32,7 +32,7 @@ namespace ShopEase.Application.Services
             var carts = await _repository.GetAllAsync();
             var dtos = _mapper.Map<IEnumerable<CartDto>>(carts);
             foreach (var (cart, dto) in carts.Zip(dtos, (c, d) => (c, d)))
-                dto.Total = cart.CalculateTotal();
+                dto.Total = cart.Items.Sum(i => (i.Product?.Price ?? 0) * i.Quantity);
             return dtos;
         }
 
@@ -40,7 +40,7 @@ namespace ShopEase.Application.Services
         {
             var cart = _mapper.Map<Cart>(dto);
             await _repository.AddAsync(cart);
-            dto.Total = cart.CalculateTotal();
+            dto.Total = cart.Items.Sum(i => (i.Product?.Price ?? 0) * i.Quantity);
             return dto;
         }
 

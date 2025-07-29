@@ -8,7 +8,7 @@ namespace ShopEase.Application.Validators
         public CartDtoValidator()
         {
             RuleFor(x => x.Items).NotNull();
-            RuleForEach(x => x.Items).SetValidator(new ProductDtoValidator());
+            RuleForEach(x => x.Items).SetValidator(new CartItemDtoValidator());
         }
     }
 }
